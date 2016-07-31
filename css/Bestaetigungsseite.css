@@ -1,0 +1,38 @@
+@charset "utf-8";
+/* CSS Document */
+
+#page
+{
+	margin-top: 2em;
+}
+
+#container
+{
+	background: #37a9e2;
+	border-radius: 25px;
+	text-align: center;
+	/*padding: 1em;*/
+}
+
+#headline
+{
+	color: #fff;
+	font-size: 2em;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 700;
+	margin-bottom: 0.5em;
+}
+
+#text
+{
+	color: #afddf4;
+	font-size: 1.5em;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 300;
+	margin: 2em 0;
+}
+
+#tt_logo
+{
+	margin-top: 0.5em;
+}

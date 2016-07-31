@@ -2,21 +2,37 @@
   
 class Request {            
    
+    private $_type; 
     private $_action;
-    private $_data;
-    private $_type;         
+    public $data;
+    private $_arrRequest;             
         
-    public function decode($request) {        
+    public function decode($request) {            
+         
+        $this->_arrRequest = json_decode($request);
         
-        $arrRequest = json_decode($request,true);           
-        if(sizeof($arrRequest) < 1) {                   
-            return false;    
+        // in case of unexpected errors
+        //echo json_last_error(); 
+        //echo json_last_error_msg(); 
+                                 
+        if(sizeof($this->_arrRequest) > 0) {            
+            
+            // TODO: check data
+            // TODO: if set_Type and setAction is not used anywhere else, no set methods necessary
+            /*$this->_type = $this->_arrRequest->type;
+            $this->_action = $this->_arrRequest->action;
+            $this->data = $this->_arrRequest->data;*/
+            
+            $this->set_Type();
+            $this->setAction();
+            $this->setData();
+            return true;                  
         }
-        return true;    
+        return false;    
     }
     
     public function set_Type() {
-        $this->_type = $this->arrRequest['type'];        
+        $this->_type = $this->_arrRequest->type;             
     }
     
     public function get_Type() {
@@ -24,20 +40,15 @@ class Request {
     }
     
     public function setAction() {
-        $this->_action = $this->arrRequest['action'];        
+        $this->_action = $this->_arrRequest->action;        
     }
     
     public function getAction() {
         return $this->_action;        
     }
     
-    public function setData() {
-        $this->_data = $this->arrRequest['data'];        
-    }
-    
-    public function getData() {
-        return $this->_data;        
-    }
-    
+    public function setData() {             
+        $this->data = $this->_arrRequest->data;        
+    }    
 }
 ?>

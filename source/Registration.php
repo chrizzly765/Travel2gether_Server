@@ -1,7 +1,7 @@
 <?php
  
 
-class Registration extends ARequest {                             
+class Registration {                             
         
     private $_Pdo; 
     
@@ -15,33 +15,34 @@ class Registration extends ARequest {
 
     public function checkIfMailNotExists($mail) {
 
-        $sql = "select user.mail  
-                from user                                    
-                where user.mail = '{$mail}' ";             
+        $sql = "SELECT person.email  
+                FROM person                                    
+                WHERE person.email = '{$mail}' ";             
         
         $this->_Pdo->sqlQuery($sql);            
-        if($arr = $this->_Pdo->fetchResult("SINGLE")) {           
+        if($arr = $this->_Pdo->fetchRow()) {           
             if(sizeof($arr) > 0) {
                 return false;
             }                     
         }                                                    
         return true;           
-    }
-    
-    #public function register(Person $Person) {
-    public function add($name, $mail, $password, $regGcmId) {
+    }                      
+   
+    public function register($data) {
         
-        $sql = "insert into user 
-                (name,password,mail,regGcmId,created) 
-                VALUES (:name,:password,:mail,:regGcmId,NOW());";           
+        $sql = "INSERT INTO person 
+                (name,password,deviceId,salt,email,added) 
+                VALUES (:name,:password,:deviceId,:salt,:email,NOW());";        
         
-        // TODO -c registration: use another technique to encrypt password        
-        //if($this->sqlPrepare($sql, array( 'name' => $Person->getName(), 'password' => $Person->getPassword(), 'mail' => $Person->getMail()))) {               
-        if($this->_Pdo->sqlPrepare($sql, array( 'name' => $name, 'password' => md5($password), 'mail' => $mail,'regGcmId' => $regGcmId))) {               
+        if($this->_Pdo->sqlPrepare($sql, array( 
+            'name' => $data->name, 'password' => $data->password, 
+            'deviceId' => $data->deviceId, 'salt' => $data->salt, 'email' => $data->email)
+            )
+        ) {               
             return true;    
         }
         return false;
-    }         
+    }   
 }        
 
 ?>
