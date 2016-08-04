@@ -174,6 +174,16 @@ $tripDetail = json_encode(array(
     )
 ));
 
+// delete trip
+$deleteTrip = json_encode(array(        
+    'type'      => 'trip',
+    'action'      => 'delete',
+    'data' => 
+    array(          
+        'tripId' => '2'
+    )
+));
+
 // add comment
 $addComment = json_encode(array(        
     'type'      => 'comment',
@@ -335,7 +345,7 @@ $getparticipants = json_encode(array(
     
   
 $url = "http://www.imagik.de/traveltogether/main.php";  
-$content = $packingDetail;
+$content = $deleteTrip;
 
 $curl = curl_init($url);
 curl_setopt($curl, CURLOPT_HEADER, false);

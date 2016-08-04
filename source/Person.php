@@ -27,10 +27,10 @@ class Person {
         return false;
     } 
     
-    public function deleteParticipant($personId, $tripId) {
+    public function deleteParticipantByTripId($tripId) {
         
         $sql = "DELETE FROM participant 
-                WHERE participant.person_id = {$personId} and participant.trip_id = {$tripId}";           
+                WHERE participant.trip_id = {$tripId}";           
               
         if($this->_Pdo->sqlExecute($sql)) {
             return true;    

@@ -119,6 +119,20 @@ class Trip {
         #return new stdClass();                  
         return array();                  
     }
+
+    public function getFeaturesByTripId($id) {
+
+        $sql = "SELECT feature.id,feature_type.type 
+                FROM `feature`
+                LEFT JOIN feature_type ON feature.feature_type_id = feature_type.id
+                where feature.trip_id = {$id} ";
+
+        $this->_Pdo->sqlQuery($sql);
+        if($obj = $this->_Pdo->fetchMultiObj()) {
+            return $obj;
+        }
+        return new stdClass();
+    }
     
     public function getTripsByPersonId($id) {
     

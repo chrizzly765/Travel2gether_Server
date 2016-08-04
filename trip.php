@@ -55,37 +55,27 @@ try {
     
     } 
     else if($Request->getAction() == "delete") {        
-        
-        if($Trip->delete($Request->data->tripId)) {                                                                
-            
-            // because its not a must that a feature exists, one has to delete trip and features seperatly
-                                                                
-            /*if(!$Person->deleteParticipant($Request->data->personId,$Request->data->tripId)) {
-                throw new Exception(Base::$arrMessages['ERR_PARTICIPANT_DELETE']);    
+
+        // get all features of trip
+        $featuresOfTrip = $Trip->getFeaturesByTripId($Request->data->tripId);
+
+        foreach($featuresOfTrip as $feature) {
+            if(!$Feature->delete($feature->type,$feature->id)) {                        
+                Base::logError($feature->type." ".Base::$arrMessages['ERR_FEATURE_DELETE'],"SQL");                        
             }
-            
-            if(!$Feature->delete("Task",$Request->data->tripId)) {
-                throw new Exception(Base::$arrMessages['ERR_TASK_DELETE']);
-            }
-            
-            if(!$Feature->delete("Expense",$Request->data->tripId)) {
-                throw new Exception(Base::$arrMessages['ERR_EXPENSE_DELETE']);
-            }
-            
-            if(!$Feature->delete("Packing",$Request->data->tripId)) {
-                throw new Exception(Base::$arrMessages['ERR_PACKING_DELETE']);
-            }
-            
-            if(!$Feature->delete("Activity",$Request->data->tripId)) {
-                throw new Exception(Base::$arrMessages['ERR_ACTIVITY_DELETE']);
-            }*/   
-                                   
-            $Response->setResponse(false,null);
-            
         }
-        else {            
-            $Response->setResponse(true,Base::$arrMessages['ERR_TRIP_DELETE']); 
-        }        
+
+        if(!$Person->deleteParticipantByTripId($Request->data->tripId)) {
+            Base::logError("TripId: ".$Request->data->tripId." ".Base::$arrMessages['ERR_PARTICIPANT_DELETE'],"SQL");               
+        }
+
+        if(!$Trip->delete($Request->data->tripId)) {
+            Base::logError(Base::$arrMessages['ERR_TRIP_DELETE'],"SQL");     
+            $Response->setResponse(true,Base::$arrMessages['ERR_TRIP_DELETE']);
+        }
+        else {
+            $Response->setResponse(false,null);
+        }         
     }
     else if($Request->getAction() == "list") {                  
         
@@ -94,29 +84,10 @@ try {
         
         foreach($objTrip as $key => $value) {             
             
-            $objParticipants = $Trip->getParticipantsByTripId($value->tripId);      
-           /* echo "<pre>";
-            var_dump($objParticipants);   
-            echo "</pre>"; */    
+            $objParticipants = $Trip->getParticipantsByTripId($value->tripId);            
             $value->participants = $objParticipants;                     
-            array_push($objTripList['list'],$value);
-             
-             
-            /*
-            $objTripList['participants'] = array();
-            array_push($objTripList['participants'],$v);
-            foreach($objParticipants as $k => $v) {  
-                var_dump($v);
-                echo "<br>";             
-                $objTripList['participants'] = array();
-                array_push($objTripList['participants'],$v);        
-            }*/                                                              
-        }
-        /*echo "<pre>";
-        var_dump($objTripList);
-        echo "</pre>"; */
-        
-        //exit();      
+            array_push($objTripList['list'],$value);                                                                  
+        }           
                      
         $Response->setResponse(false,null);
         $Response->setResponseData($objTripList);                           
@@ -128,7 +99,8 @@ try {
             $Response->setResponse(false,null);
             $Response->setResponseData($arrDetail);    
         }
-        else {            
+        else {       
+            Base::logError(Base::$arrMessages['ERR_TRIP_DETAIL'],"SQL");     
             $Response->setResponse(true,Base::$arrMessages['ERR_TRIP_DETAIL']); 
         }        
     }

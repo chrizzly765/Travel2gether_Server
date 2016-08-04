@@ -11,18 +11,42 @@ class Feature {
         $this->_Pdo = $Pdo;        
     } 
     
-    public function add($data){   
+    public function add($data){    
         
         $sql = "INSERT INTO feature 
                 (trip_id, author, title, description, added, last_update_by, last_update) 
-                VALUES (:tripId, :author, :title, :description, NOW(), :author, NOW());"; 
+                VALUES (:tripId, :author, :title, :description, NOW(), :author, NOW());";
                 
         if($this->_Pdo->sqlPrepare($sql, 
-            array('tripId' => $data->tripId, 'author' => $data->author, 'title' => $data->title, 
+            array('tripId' => $data->tripId, 'author' => $data->author, 'title' => $data->title,
                     'description' => $data->description))) {               
             return true;    
         }
         return false;          
+    }
+    
+    public function delete($feature, $id) {
+        
+        // delete feature and concrete feature - one query
+        $sql = "DELETE feature, {$feature} FROM feature, {$feature} 
+                WHERE feature.id = {$feature}.id 
+                AND feature.id = {$id} ";                
+                
+        if($this->_Pdo->sqlExecute($sql)) {
+            return true;    
+        }
+        return false;
+        
+        // delete feature by using concrete delete method - two queries
+        /*if(call_user_func_array(array($feature, "delete"), array($id))) {
+            
+            $sql = "DELETE FROM feature WHERE feature.id = {$id} ";           
+              
+            if($this->_Pdo->sqlExecute($sql)) {
+                return true;    
+            }                
+        }                        
+        return false;*/
     }
     
     public function getTypeId($type) {

@@ -172,69 +172,23 @@
             
             $sql = "delete from {$table} where {$table}.id = {$id} ";           
               
-            if($this->_Pdo->sqlExecute($sql)) {
+            if(self::$_Pdo->sqlExecute($sql)) {
                 return true;    
             }
             return false;           
         } 
         
-        public static function logEvents() {
-            
-        }  
-
-        /*public function errorHandler($error_level, $error_message, $error_file, $error_line, $error_context) {
-            
-            $error = "lvl: " . $error_level . " | msg:" . $error_message . " | file:" . $error_file . " | ln:" . $error_line;
-            switch ($error_level) {
-                case E_ERROR:
-                case E_CORE_ERROR:
-                case E_COMPILE_ERROR:
-                case E_PARSE:
-                    mylog($error, "fatal");
-                    break;
-                case E_USER_ERROR:
-                case E_RECOVERABLE_ERROR:
-                    mylog($error, "error");
-                    break;
-                case E_WARNING:
-                case E_CORE_WARNING:
-                case E_COMPILE_WARNING:
-                case E_USER_WARNING:
-                    mylog($error, "warn");
-                    break;
-                case E_NOTICE:
-                case E_USER_NOTICE:
-                    mylog($error, "info");
-                    break;
-                case E_STRICT:
-                    mylog($error, "debug");
-                    break;
-                default:
-                    mylog($error, "warn");
-            }
-        }
-
-        public function shutdownHandler() { //will be called when php script ends.
+        public static function logError($msg,$type,$system_msg="") { 
+        
+            $sql = "INSERT INTO err_log 
+                    (msg,system_msg,type,created) 
+                    VALUES (:msg,:system_msg,:type,NOW());";        
            
-            $lasterror = error_get_last();
-            switch ($lasterror['type'])
-            {
-                case E_ERROR:
-                case E_CORE_ERROR:
-                case E_COMPILE_ERROR:
-                case E_USER_ERROR:
-                case E_RECOVERABLE_ERROR:
-                case E_CORE_WARNING:
-                case E_COMPILE_WARNING:
-                case E_PARSE:
-                    $error = "[SHUTDOWN] lvl:" . $lasterror['type'] . " | msg:" . $lasterror['message'] . " | file:" . $lasterror['file'] . " | ln:" . $lasterror['line'];
-                    mylog($error, "fatal");
+            if(self::$_Pdo->sqlPrepare($sql, array('msg' => $msg,  'system_msg'=> $system_msg, 'type' => $type))) {               
+                return true;    
             }
-        }*/
-      
-      
-    }        
-
-  
+            return false;      
+        }        
+    }          
   
 ?>
