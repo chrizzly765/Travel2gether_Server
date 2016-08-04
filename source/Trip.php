@@ -16,6 +16,11 @@ class Trip {
         $sql = "INSERT INTO trip 
                 (title,destination,description,author,admin,start_date,end_date,added) 
                 VALUES (:title,:destination,:description,:author,:admin,:startDate,:endDate,NOW());"; 
+        
+        $dateStart = new DateTime($data->startDate);
+        $dateEnd = new DateTime($data->endDate);
+        $data->startDate = $dateStart->format('Y-m-d');
+        $data->endDate = $dateEnd->format('Y-m-d');
                 
         if($this->_Pdo->sqlPrepare($sql, 
             array( 'title' => $data->title, 'destination' => $data->destination,
