@@ -16,15 +16,15 @@ class Comment {
 	
 		$sql = "INSERT INTO comment
 				(author, added, feature_id, content)
-				VALUES (:author, :added, :feature_id, :content);";
+				VALUES (:author, NOW(), :feature_id, :content);";
 		
-		if($this->_Pdo->sqlPrepare($sql, 
-            array( 'author' => $data->author, 'added' => $data->added,
+		if(!$this->_Pdo->sqlPrepare($sql, 
+            array( 'author' => $data->author, 
                     'feature_id' => $data->featureId,'content' => $data->content))
             ) {               
-            return true;    
+            throw new Exception(Base::$arrMessages['ERR_COMMENT_ADD'],10);    
         }
-        return false;
+        return true;
 	}
 	
 	/* returns a list of all comments of one feature: content, author, added, color of participant */
@@ -33,11 +33,6 @@ class Comment {
 		$sql = "SELECT c.author, DATE_FORMAT(c.added,'%d.%m.%Y') AS added, c.content
 				FROM comment c
 				WHERE c.feature_id = {$feature_id}";
-	
-		/*$sql = "SELECT c.author, c.added, c.content, p.color
-				FROM comment c
-				JOIN participant p ON p.person_id = c.author
-				WHERE c.feature_id = {$feature_id}";*/
 				
 		$this->_Pdo->sqlQuery($sql);
 		if($obj = $this->_Pdo->fetchMultiObj()) {           
@@ -50,15 +45,15 @@ class Comment {
 	/* returns the number of comments of a feature */
 	public function getCommentsNumber($feature_id){
 		
-		$sql = "SELECT COUNT(c.id)
+		$sql = "SELECT COUNT(c.id) as commentsNumber
 				FROM comment c
 				WHERE c.feature_id = {$feature_id};";
 				
 		$this->_Pdo->sqlQuery($sql);
-		if($obj = $this->_Pdo->fetchRow()) {           
+		if($obj = $this->_Pdo->fetchValueWithKey('commentsNumber')) {           
             return $obj;
         }                                                    
-        return new stdClass();
+        return 0;
 		
 	}
 }

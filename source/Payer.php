@@ -12,31 +12,17 @@ class Payer {
     }   
 
 	/* inserts a new payer in the database */
-    public function add($featureId, $data) {
+    public function add($featureId, $data, $tripId) {
 	
 		$sql = "INSERT INTO payer
 				(id, payer, amount)
-				VALUES(:featureId, :payer, :amount)";
+				VALUES(:featureId, :payer, :amount);
+				UPDATE participant p
+				SET p.account_balance = p.account_balance - :amount
+				WHERE p.person_id = :payer
+				AND p.trip_id = :tripId";
 				
-		if(!$this->_Pdo->sqlPrepare($sql, array('featureId' => $featureId, 'payer' => $data->payer, 'amount' => $data->amount))) {            			 			throw new Exception(Base::$arrMessages['ERR_PAYER_ADD'],10);    
-        }           
-        return true;
-	
-	}
-	
-	/* updates an existing payer */
-    public function update($data) {
-	
-		$sql = "UPDATE payer p
-				JOIN feature f ON f.id = p.id
-				SET p.payer = {$data->payer},
-				p.amount = {$data->amount},
-				f.last_update_by = {$data->last_update_by}, 
-				f.last_update = NOW()
-				WHERE p.id = {$data->id}";
-		
-		if(!$this->_Pdo->sqlPrepare($sql)) {            
-            throw new Exception(Base::$arrMessages['ERR_PAYER_UPDATE'],10);    
+		if(!$this->_Pdo->sqlPrepare($sql, array('featureId' => $featureId, 'payer' => $data->personId, 'amount' => $data->amount, 'tripId' => $tripId))) {            			 			throw new Exception(Base::$arrMessages['ERR_PAYER_ADD'],10);    
         }           
         return true;
 	
@@ -70,6 +56,8 @@ class Payer {
         return new stdClass();
 	
 	}
+	
+	
 
 }
  

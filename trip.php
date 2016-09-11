@@ -55,27 +55,37 @@ try {
     
     } 
     else if($Request->getAction() == "delete") {        
-
-        // get all features of trip
-        $featuresOfTrip = $Trip->getFeaturesByTripId($Request->data->tripId);
-
-        foreach($featuresOfTrip as $feature) {
-            if(!$Feature->delete($feature->type,$feature->id)) {                        
-                Base::logError($feature->type." ".Base::$arrMessages['ERR_FEATURE_DELETE'],"SQL");                        
+        
+        if($Trip->delete($Request->data->tripId)) {                                                                
+            
+            // because its not a must that a feature exists, one has to delete trip and features seperatly
+                                                                
+            /*if(!$Person->deleteParticipant($Request->data->personId,$Request->data->tripId)) {
+                throw new Exception(Base::$arrMessages['ERR_PARTICIPANT_DELETE']);    
             }
-        }
-
-        if(!$Person->deleteParticipantByTripId($Request->data->tripId)) {
-            Base::logError("TripId: ".$Request->data->tripId." ".Base::$arrMessages['ERR_PARTICIPANT_DELETE'],"SQL");               
-        }
-
-        if(!$Trip->delete($Request->data->tripId)) {
-            Base::logError(Base::$arrMessages['ERR_TRIP_DELETE'],"SQL");     
-            $Response->setResponse(true,Base::$arrMessages['ERR_TRIP_DELETE']);
-        }
-        else {
+            
+            if(!$Feature->delete("Task",$Request->data->tripId)) {
+                throw new Exception(Base::$arrMessages['ERR_TASK_DELETE']);
+            }
+            
+            if(!$Feature->delete("Expense",$Request->data->tripId)) {
+                throw new Exception(Base::$arrMessages['ERR_EXPENSE_DELETE']);
+            }
+            
+            if(!$Feature->delete("Packing",$Request->data->tripId)) {
+                throw new Exception(Base::$arrMessages['ERR_PACKING_DELETE']);
+            }
+            
+            if(!$Feature->delete("Activity",$Request->data->tripId)) {
+                throw new Exception(Base::$arrMessages['ERR_ACTIVITY_DELETE']);
+            }*/   
+                                   
             $Response->setResponse(false,null);
-        }         
+            
+        }
+        else {            
+            $Response->setResponse(true,Base::$arrMessages['ERR_TRIP_DELETE']); 
+        }        
     }
     else if($Request->getAction() == "list") {                  
         
@@ -84,10 +94,29 @@ try {
         
         foreach($objTrip as $key => $value) {             
             
-            $objParticipants = $Trip->getParticipantsByTripId($value->tripId);            
+            $objParticipants = $Trip->getParticipantsByTripId($value->tripId);      
+           /* echo "<pre>";
+            var_dump($objParticipants);   
+            echo "</pre>"; */    
             $value->participants = $objParticipants;                     
-            array_push($objTripList['list'],$value);                                                                  
-        }           
+            array_push($objTripList['list'],$value);
+             
+             
+            /*
+            $objTripList['participants'] = array();
+            array_push($objTripList['participants'],$v);
+            foreach($objParticipants as $k => $v) {  
+                var_dump($v);
+                echo "<br>";             
+                $objTripList['participants'] = array();
+                array_push($objTripList['participants'],$v);        
+            }*/                                                              
+        }
+        /*echo "<pre>";
+        var_dump($objTripList);
+        echo "</pre>"; */
+        
+        //exit();      
                      
         $Response->setResponse(false,null);
         $Response->setResponseData($objTripList);                           
@@ -99,8 +128,7 @@ try {
             $Response->setResponse(false,null);
             $Response->setResponseData($arrDetail);    
         }
-        else {       
-            Base::logError(Base::$arrMessages['ERR_TRIP_DETAIL'],"SQL");     
+        else {            
             $Response->setResponse(true,Base::$arrMessages['ERR_TRIP_DETAIL']); 
         }        
     }
@@ -109,7 +137,22 @@ try {
         // change status of participant
             
     
-    }                            
+    }      
+	else if($Request->getAction() == "getparticipants") {
+	
+		if($Trip->getParticipantsOfTrip($Request->data->tripId)) {
+			
+			$objParticipantsList['list'] = array();
+			$objParticipant = $Trip->getParticipantsOfTrip($Request->data->tripId); 
+			
+			foreach($objParticipant as $key => $value) {
+				array_push($objParticipantsList['list'],$value);
+			}
+			
+            $Response->setResponse(false,null);
+            $Response->setResponseData($objParticipantsList);             
+        }    
+	}                      
 }
 catch(Exception $e) {                    
     throw $e;

@@ -13,6 +13,16 @@
     define('STATE_INVITATION_JOINED','joined');
     define('STATE_INVITATION_RESIGNED','resigned');
     define('STATE_INVITATION_DECLINED','declined');
+
+    define('NOTIFICATION_TYPE_INVITATION','Invitation');
+    define('NOTIFICATION_TYPE_TRIP','Trip');
+    define('NOTIFICATION_TYPE_TASK','Task');
+    define('NOTIFICATION_TYPE_EXPENSE','Expense');
+    define('NOTIFICATION_TYPE_PACKING','Packing');
+    define('NOTIFICATION_TYPE_ACTIVITY','Activity');
+    define('NOTIFICATION_TYPE_CHAT','Chat');
+    define('NOTIFICATION_TYPE_INFO','Info');
+    define('NOTIFICATION_MSG_SHOWN',50);
     
     // default DE
     // save country in table person

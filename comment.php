@@ -18,7 +18,25 @@ try {
             $Response->setResponse(true,Base::$arrMessages['ERR_COMMENT_ADD']); 
         }
 	}
-
+	
+	else if($Request->getAction() == "list") {
+    
+        if($Comment->getList($Request->data->featureId)) {
+			
+			$objCommentList['list'] = array();
+			$objComment = $Comment->getList($Request->data->featureId); 
+			
+			foreach($objComment as $key => $value) {
+				array_push($objCommentList['list'],$value);
+			}
+			
+            $Response->setResponse(false,null);
+            $Response->setResponseData($objCommentList);             
+        }                      
+		                          
+    }
+	
+	
 }
 catch(Exception $e) {                    
     throw $e;

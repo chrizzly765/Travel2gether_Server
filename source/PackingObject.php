@@ -29,7 +29,7 @@ class PackingObject implements IFeatureItem {
 				SET po.category_id = :categoryId,
 				f.title = :title,
 				f.description = :description,
-				f.last_update_by = :last_update_by, 
+				f.last_update_by = :lastUpdateBy, 
 				f.last_update = NOW()
 				WHERE po.id = :id";
 		

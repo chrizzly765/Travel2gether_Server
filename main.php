@@ -52,8 +52,7 @@
             
         }
         
-        Base::logError($e->getMessage(),"EXC");  
-        // TODO: log exceptions
+        Base::logError($e->getMessage(),"EXC");          
         echo "CUSTOM EXCEPTION: ".$e->getMessage();
         
         // TODO: response with a general message

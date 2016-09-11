@@ -53,12 +53,31 @@ class Feature {
         
         $sql = "SELECT feature_type.id
                 FROM feature_type
-                WHERE feature_type.`type` = {$type} ";             
+                WHERE feature_type.`type` = '{$type}' ";
         
         $this->_Pdo->sqlQuery($sql);            
         $val = $this->_Pdo->fetchValueWithKey("id");                                                    
-        return $val;  
-    }    
+
+        if(is_null($val)) {
+            return -1;
+        }
+        return $val;
+    }
+
+    public function setTypeId($id, $typeId) {
+
+        $sql = "UPDATE feature 				
+				SET feature.feature_type_id = :typeId,			 
+				feature.last_update = NOW()
+				WHERE feature.id = :id";
+
+        if(!$this->_Pdo->sqlPrepare($sql, array('typeId' => $typeId, 'id' => $id))) {
+            #throw new Exception(Base::$arrMessages['ERR_TASK_UPDATE'],10);
+        }
+        return true;
+    }
+
+
 }
 
 ?>

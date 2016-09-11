@@ -68,11 +68,11 @@ $addTask = json_encode(array(
     'data' => 
     array(          
         'tripId' => '1',  
-        'author' => "1",               
+        'author' => "29",
         'title'      => 'Visum',                 
         'description'      => 'Visum besorgen bevor wir fliegen',
         'deadline'      => '05.07.18',
-		'person_assigned' => 1,
+		'person_assigned' => 0,
 		'status_id' => 1
     )
 ));
@@ -171,16 +171,6 @@ $tripDetail = json_encode(array(
     'data' => 
     array(          
         'tripId' => '1'
-    )
-));
-
-// delete trip
-$deleteTrip = json_encode(array(        
-    'type'      => 'trip',
-    'action'      => 'delete',
-    'data' => 
-    array(          
-        'tripId' => '2'
     )
 ));
 
@@ -287,8 +277,8 @@ $updatePacking = json_encode(array(
 		'last_update_by' => 29,
 		'categoryId' => 2,
 		'number' => 5,
-		'items' => array(	array('id' => 9, 'personId' => 2, 'number' => 3, 'status' => 1), 
-							array('id' => 10, 'personId' => 50, 'number' => 2, 'status' => 0))
+		'items' => array(	array('id' => 9, 'personId' => 2, 'number' => 3, 'state' => 1), 
+							array('id' => 10, 'personId' => 50, 'number' => 2, 'state' => 0))
     )
 ));
 
@@ -342,10 +332,94 @@ $getparticipants = json_encode(array(
         'personId' => '55'
     )
 ));
+
+// get chat list
+$chatList = json_encode(array(        
+    'type'      => 'chat',
+    'action'      => 'list',
+    'data' => 
+    array(          
+        'tripId' => '1'
+    )
+));
+
+// get participants
+$participantsList = json_encode(array(        
+    'type'      => 'trip',
+    'action'      => 'getparticipants',
+    'data' => 
+    array(          
+        'tripId' => '1'
+    )
+));
+
+// add expense
+$addExpense = json_encode(array(        
+    'type'      => 'expense',
+    'action'      => 'add',
+    'data' => 
+    array(          
+        'tripId' => '1',  
+        'author' => "1",               
+        'title' => 'Getränke',                 
+        'description' => 'Hab 10 Kästen Bier gekauft',
+		'payedBy' => '29',
+		'amount' => "100",
+		'currencyId' => "1",
+		'payer' => array(array('personId' => 29, 'amount' => 53.50), array('personId' => 33, 'amount' => 46.50))
+    )
+));
+
+// update expense
+$updateExpense = json_encode(array(        
+    'type'    => 'expense',
+    'action'      => 'update',
+    'data' => 
+    array(    
+		'id' => '45',               
+        'title' => 'Getränke',                 
+        'description' => 'Hab 10 Kästen Bier gekauft',
+		'lastUpdateBy' => '29',
+		'payedBy' => '29',
+		'amount' => "120",
+		'currencyId' => "1",
+		'payer' => array(array('personId' => 28, 'amount' => 58.50), array('personId' => 33, 'amount' => 42.50))
+    )
+));
+
+// get expense list
+$expenseList = json_encode(array(        
+    'type'      => 'expense',
+    'action'      => 'list',
+    'data' => 
+    array(          
+        'tripId' => '1'
+    )
+));
+
+// get expense detail
+$expenseDetail = json_encode(array(        
+    'type'      => 'expense',
+    'action'      => 'detail',
+    'data' => 
+    array(          
+        'featureId' => '45'
+    )
+));
+
+// notification list
+$notificationList = json_encode(array(
+	'type'      => 'notification',
+	'action'      => 'list',
+	'data' =>
+		array(
+			'personId' => '33'
+		)
+));
     
   
 $url = "http://www.imagik.de/traveltogether/main.php";  
-$content = $deleteTrip;
+$content = $addTask;
 
 $curl = curl_init($url);
 curl_setopt($curl, CURLOPT_HEADER, false);

@@ -2,31 +2,50 @@
 
 try {               
     $Feature = FRequest::create("Feature", array($Pdo));    
-    $Task = FRequest::create("Task", array($Pdo));    
+    $Task = FRequest::create("Task", array($Pdo)); 
+	$Comment = FRequest::create("Comment", array($Pdo));
+    $Person = FRequest::create("Person", array($Pdo));
         
     if($Request->getAction() == "add") {         
       
         if(call_user_func_array(array($Feature, $Request->getAction()), array($Request->data))) {
-        	
-            // TODO: get featureTypeId ... featureType == $Request->get_Type()?
-            //$featureId = $Feature->getTypeId($Request->get_Type());
-            
+
             $featureId = $Pdo->lastInsertId();
             Base::$transaction['feature'] = $featureId;
-			
+
+            // set featureTypeId
+            $featureTypeId = $Feature->getTypeId($Request->get_Type());
+            if($featureTypeId == -1) {
+                throw new Exception(Base::$arrMessages['ERR_TASK_ADD'],10);
+            }
+            $Feature->setTypeId($featureId, $featureTypeId);
+
+            // add task
             if($Task->add($featureId, $Request->data)) {
-                $Response->setResponse(false,Base::$arrMessages['OK_TASK_ADD']);  
-				  
-            }              
-            
-            // TODO: get name of author by id if notification is needed
-            
-            // replace wildcards
-            //$msg = sprintf(TASK_ADD, $Request->data->authorId, $Request->data->title);
-                                             
-            // get deviceIds of participants
-            //$arrDeviceId = $Notification->getUserTokenByTripId($Request->data->tripId);                   
-            //$Notification->send($arrDeviceId, array('message' => $msg));
+                $Response->setResponse(false,Base::$arrMessages['OK_TASK_ADD']);
+            }
+
+            if($Request->data->person_assigned == 0) {
+                $text = 'TASK_ADD';
+                $deviceId = $Notification->getUserTokenByTripId($Request->data->tripId, $Request->data->author);
+                $deviceFound = (sizeof($deviceId) > 0) ? true : false;
+            }
+            else {
+                $text = 'TASK_ADD_TO';
+                $deviceId = $Notification->getUserTokenByPersonId($Request->data->person_assigned);
+                $deviceFound = ($deviceId != -1) ? true : false;
+            }
+
+            $author = $Person->getNameById($Request->data->author);
+            $msg = Base::formatMessage($text, $author, $Request->data->title);
+
+
+            /*if($deviceFound) {
+                $Notification->send(
+                    array($deviceId),
+                    array('message' => $msg, 'id'=>$Request->data->tripId, 'type'=>NOTIFICATION_TYPE_TASK, 'date'=>date("d.m.Y H:i:s"))
+                );
+            }*/
         }
         else {            
             $Response->setResponse(true,Base::$arrMessages['ERR_TASK_ADD']);    
@@ -34,21 +53,27 @@ try {
     } 
 	else if($Request->getAction() == "update") {
 		if($Task->update($Request->data)) {
-                $Response->setResponse(false,Base::$arrMessages['OK_TASK_UPDATE']);  
+            $Response->setResponse(false,Base::$arrMessages['OK_TASK_UPDATE']);
         } 	
 	}
 	else if($Request->getAction() == "delete") {
 		if($Task->delete($Request->data->id)) {
-				print "Hallo";
-                $Response->setResponse(false,Base::$arrMessages['OK_TASK_DELETE']);  
+            $Response->setResponse(false,Base::$arrMessages['OK_TASK_DELETE']);
         }
-	
 	}
     else if($Request->getAction() == "list") {
     
         if($taskList = $Task->getList($Request->data->tripId)) {
-            $Response->setResponse(false,null);
-            $Response->setResponseData($taskList);             
+            
+			$objTaskList['list'] = array(); 
+			
+			foreach($taskList as $key => $value) {
+				$value->commentsNumber = $Comment->getCommentsNumber($value->id);
+				array_push($objTaskList['list'],$value);
+			}
+					
+			$Response->setResponse(false,null);
+            $Response->setResponseData($objTaskList);             
         }                      
     } 
 	else if($Request->getAction() == "detail") {
@@ -56,7 +81,6 @@ try {
             $Response->setResponse(false,null);
             $Response->setResponseData($taskDetail);             
         }
-	
 	}                             
 }
 catch(Exception $e) {                    

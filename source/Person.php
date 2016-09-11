@@ -18,7 +18,7 @@ class Person {
     public function addParticipant($personId, $state, $tripId) {
         
         $sql = "INSERT INTO participant 
-                (person_id,status,trip_id,added) 
+                (person_id,state,trip_id,added) 
                 VALUES (:personId,:state,:tripId,NOW());";        
        
         if($this->_Pdo->sqlPrepare($sql, array('personId' => $personId,  'state'=> $state, 'tripId' => $tripId))) {               
@@ -27,10 +27,10 @@ class Person {
         return false;
     } 
     
-    public function deleteParticipantByTripId($tripId) {
+    public function deleteParticipant($personId, $tripId) {
         
         $sql = "DELETE FROM participant 
-                WHERE participant.trip_id = {$tripId}";           
+                WHERE participant.person_id = {$personId} and participant.trip_id = {$tripId}";           
               
         if($this->_Pdo->sqlExecute($sql)) {
             return true;    
@@ -40,7 +40,7 @@ class Person {
     
     public function getParticipantById($tripId, $personId) {
     
-        $sql = "SELECT participant.status as state 
+        $sql = "SELECT participant.state as state 
                 FROM participant
                 WHERE participant.trip_id = {$tripId} 
                 AND participant.person_id = {$personId}";             
@@ -81,7 +81,7 @@ class Person {
     public function updateState($personId, $stateId, $tripId) {   
     
         $sql = "UPDATE participant 
-                SET participant.`status` = {$stateId}, participant.last_update = NOW()
+                SET participant.`state` = {$stateId}, participant.last_update = NOW()
                 WHERE participant.person_id = {$personId} AND participant.trip_id = {$tripId} ";           
           
         if($this->_Pdo->sqlExecute($sql)) {

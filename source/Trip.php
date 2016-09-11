@@ -16,11 +16,6 @@ class Trip {
         $sql = "INSERT INTO trip 
                 (title,destination,description,author,admin,start_date,end_date,added) 
                 VALUES (:title,:destination,:description,:author,:admin,:startDate,:endDate,NOW());"; 
-        
-        $dateStart = new DateTime($data->startDate);
-        $dateEnd = new DateTime($data->endDate);
-        $data->startDate = $dateStart->format('Y-m-d');
-        $data->endDate = $dateEnd->format('Y-m-d');
                 
         if($this->_Pdo->sqlPrepare($sql, 
             array( 'title' => $data->title, 'destination' => $data->destination,
@@ -109,12 +104,12 @@ class Trip {
                  
     public function getParticipantsByTripId($id, $state=2) {
     
-        $sql = "SELECT participant.`status`, participant.color, person.name
+        $sql = "SELECT participant.`state`, participant.color, person.name
                 FROM trip
                 INNER JOIN participant ON trip.id = participant.trip_id
                 INNER JOIN person ON participant.person_id = person.id
                 WHERE trip.id = {$id} 
-                AND participant.status = {$state}";  
+                AND participant.state = {$state}";  
                         
         $this->_Pdo->sqlQuery($sql);            
         if($obj = $this->_Pdo->fetchMultiObj()) {  
@@ -124,24 +119,10 @@ class Trip {
         #return new stdClass();                  
         return array();                  
     }
-
-    public function getFeaturesByTripId($id) {
-
-        $sql = "SELECT feature.id,feature_type.type 
-                FROM `feature`
-                LEFT JOIN feature_type ON feature.feature_type_id = feature_type.id
-                where feature.trip_id = {$id} ";
-
-        $this->_Pdo->sqlQuery($sql);
-        if($obj = $this->_Pdo->fetchMultiObj()) {
-            return $obj;
-        }
-        return new stdClass();
-    }
     
     public function getTripsByPersonId($id) {
     
-        $sql = "SELECT participant.`status`, participant.color, person.name
+        $sql = "SELECT participant.`state`, participant.color, person.name
                 FROM trip
                 INNER JOIN participant ON trip.id = participant.trip_id
                 INNER JOIN person ON participant.person_id = person.id
@@ -153,6 +134,48 @@ class Trip {
         }                                                    
         return new stdClass();                  
     }
+	
+	public function getParticipantsOfTrip($id) {
+    
+        $sql = "SELECT pa.color, ps.state, pa.account_balance as accountBalance, pa.person_id as personId, pe.name, pe.email
+				FROM participant pa
+				INNER JOIN person pe ON pe.id = pa.person_id
+				INNER JOIN participant_state ps on ps.id = pa.state 
+                WHERE pa.trip_id = {$id}";  
+                        
+        $this->_Pdo->sqlQuery($sql);            
+        if($obj = $this->_Pdo->fetchMultiObj()) {                 
+            return $obj;
+        }                                                    
+        return new stdClass();                                   
+    }
+	
+	public function getStatistic($tripId){
+		$sql = 	"SELECT COUNT(t.id) as tasksDone
+				FROM feature f 
+				JOIN task t on t.id = f.id	
+				WHERE t.status_id = 3
+				AND f.trip_id = {tripId};";
+		
+		$this->_Pdo->sqlQuery($sql);
+		
+		if($tasksDone = $this->_Pdo->fetchValueWithKey('tasksDone')) {           
+        	$sql = "SELECT COUNT(t.id) as allTasks
+					FROM feature f 
+					JOIN task t on t.id = f.id	
+					WHERE f.trip_id = {tripId};"; 
+						
+			$this->_Pdo->sqlQuery($sql);
+		
+			if($allTasks = $this->_Pdo->fetchValueWithKey('allTasks')) { 
+				if($allTasks != 0) {
+					return $tasksDone / $allTasks;
+				}
+			}
+        }                                                    
+        return 0;	
+	
+	}
     
 }
 

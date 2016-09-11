@@ -60,11 +60,9 @@ class PackingItem {
 	/* returns a list of all packing items of a packing object: status, person_assigned, number, color and name of person_assigned */
     public function getList($featureId) {
 	
-		$sql = "SELECT pi.status, pi.person_assigned, pi.number, pa.color, pe.name
+		$sql = "SELECT pi.status, pi.person_assigned, pi.number
 				FROM packing_item pi
 				JOIN feature f on f.id = pi.feature_id
-				LEFT JOIN participant pa on (pi.person_assigned IS NOT NULL AND pa.person_id = pi.person_assigned AND pa.trip_id = f.trip_id)
-				LEFT JOIN person pe on (pi.person_assigned IS NOT NULL AND pe.id = pi.person_assigned)
 				WHERE pi.feature_id = 20";
 		
 		$this->_Pdo->sqlQuery($sql);

@@ -2,7 +2,8 @@
 
 try {               
     $Feature = FRequest::create("Feature", array($Pdo));    
-    $Activity = FRequest::create("Activity", array($Pdo));    
+    $Activity = FRequest::create("Activity", array($Pdo)); 
+	$Comment = FRequest::create("Comment", array($Pdo));    
         
     if($Request->getAction() == "add") {         
       
@@ -34,8 +35,15 @@ try {
     else if($Request->getAction() == "list") {
     
         if($activityList = $Activity->getList($Request->data->tripId)) {
-            $Response->setResponse(false,null);
-            $Response->setResponseData($activityList);             
+            $objActivityList['list'] = array(); 
+			
+			foreach($activityList as $key => $value) {
+				$value->commentsNumber = $Comment->getCommentsNumber($value->id);
+				array_push($objActivityList['list'],$value);
+			}
+			//print_r($objActivityList);			
+			$Response->setResponse(false,null);
+            $Response->setResponseData($objActivityList);             
         }                      
     } 
 	else if($Request->getAction() == "detail") {

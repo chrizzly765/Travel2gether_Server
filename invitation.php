@@ -17,11 +17,11 @@ try {
     
         // get stateType from db participant_state
         $stateId = $Person->getStateByName(STATE_INVITATION_INVITED);             
-        $state = $Person->getParticipantById($Request->data->tripId,$Request->data->personId);                    
+        $state = $Person->getParticipantById($Request->data->tripId,$Request->data->receiverId);                    
         
         // if participant doesnt exist, add
         if($state == -1) {             
-            if($Person->addParticipant($Request->data->personId, $stateId, $Request->data->tripId)) {
+            if($Person->addParticipant($Request->data->receiverId, $stateId, $Request->data->tripId)) {
                 $Response->setResponse(false,null);
                 
                 // send Notification
@@ -32,29 +32,27 @@ try {
                 $Response->setResponse(true,Base::$arrMessages['ERR_TRIP_INVITE']);
             }   
         } 
-        
+
         $tripTitle = $Trip->getDetailByName($Request->data->tripId, "title");
-        $personName = $Person->getNameById($Request->data->personId);      
+        $author = $Person->getNameById($Request->data->author);      
         
-        // send notification to invited user only when add was successful ^        
-        $msg = Base::formatMessage('TRIP_INVITE', $personName, $tripTitle);
-        $deviceId = $Notification->getUserTokenByPersonId($Request->data->personId);  
-        /*if($deviceId != -1) {
+        // send notification to invited user only when add was successful ^
+        $msg = Base::formatMessage('TRIP_INVITE', $author, $tripTitle);
+        $deviceId = $Notification->getUserTokenByPersonId($Request->data->receiverId);  
+        if($deviceId != -1) {
             $Notification->send(
                 array($deviceId), 
-                array('message' => $msg, 'id'=>$Request->data->tripId, 'type'=>"Trip", 'date'=>date("d.m.Y H:i:s")
-                )
+                array('message' => $msg, 'id'=>$Request->data->tripId, 'type'=>NOTIFICATION_TYPE_INVITATION, 'date'=>date("d.m.Y H:i:s"))
             );           
-        }*/
-        
-        // TODO: get notificationTypeId ??
+        }
+
         $Request->data->featureId = 0;
-        $Request->data->notificationTypeId = 0;
+        $Request->data->notificationTypeId = $Notification->getNotificationTypeId(NOTIFICATION_TYPE_INVITATION);
+        $Request->data->message = $msg;
         
         if(!$Notification->add($Request->data)) {
-            // error log
+            Base::logError($Request->data->message." :id: ".$Request->data->id,"NOT");
         }
-                             
     }        
     else if($Request->getAction() == "accept") {
     

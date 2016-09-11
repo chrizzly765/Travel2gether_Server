@@ -21,17 +21,31 @@ class Notification {
     public function add($data) {
         
         $sql = "INSERT INTO notification 
-                (trip_id,notification_type_id,feature_id,author,added) 
-                VALUES (:tripId,:notificationTypeId,:featureId,:author,NOW());"; 
+                (trip_id,type_id,feature_id,author,receiver,message,added) 
+                VALUES (:tripId,:typeId,:featureId,:author,:receiverId,:message,NOW());";
                 
         if($this->_Pdo->sqlPrepare($sql, 
-            array( 'tripId' => $data->tripId, 'notificationTypeId' => $data->notificationTypeId,
-                    'featureId' => $data->featureId,'author' => $data->personId))
+            array( 'tripId' => $data->tripId, 'typeId' => $data->notificationTypeId,
+                    'featureId' => $data->featureId,'author' => $data->author,'receiverId' => $data->receiverId,
+                    'message' => $data->message))
             ) {               
             return true;    
         }
         return false;          
-    }   
+    }
+
+    public function update($id) {
+
+        $sql = "UPDATE notification				
+				SET notification. 
+				notification.last_update = NOW()
+				WHERE notification.id = :id";
+
+        if($this->_Pdo->sqlPrepare($sql, array('id' => $id))) {
+            return true;
+        }
+        return false;
+    }
     
     // array of deviceId from one person
     public function getUserTokenByPersonId($personId) {
@@ -48,14 +62,15 @@ class Notification {
     
     // array of tokens from participants
     // TODO: create method do associative
-    public function getUserTokenByTripId($tripId) {
+    public function getUserTokenByTripId($tripId, $authorId=0) {
         $sql = "SELECT person.deviceId
                 FROM person
-                LEFT JOIN participant ON person.id = participant.person_id
-                WHERE participant.trip_id = {$tripId} ";    
-        
+                LEFT JOIN participant ON person.id = participant.person_id                
+                WHERE participant.trip_id = {$tripId} 
+                AND participant.person_id != {$authorId} ";
+
         $this->_Pdo->sqlQuery($sql);                    
-        if($arr = $this->_Pdo->fetchRow()) {           
+        if($arr = $this->_Pdo->fetchMultiRow()) {
             if(sizeof($arr) > 0) {
                 return $arr;
             }                     
@@ -101,12 +116,45 @@ class Notification {
         $result = curl_exec($ch);
         /*if ($result === FALSE) {
             die('Curl failed: ' . curl_error($ch));
-        }*/
-        echo "result: ".$result;          
+        }*/         
  
         // Close connection
         curl_close($ch);
         return $result;
+    }
+
+    public function getNotificationsByPersonId($personId, $numOfMessages) {
+
+        $sql = "SELECT notification.message, notification.id, notification.added, notification_type.type, 
+                        notification.trip_id, notification.feature_id, notification.opened 
+                FROM notification, notification_type                
+                WHERE notification.receiver = {$personId}   
+                AND notification_type.id = notification.type_id
+                ORDER BY notification.added ASC
+                LIMIT {$numOfMessages}";
+
+        $this->_Pdo->sqlQuery($sql);
+        //if($arr = $this->_Pdo->fetchRow()) {
+        if($arr = $this->_Pdo->fetchMultiObj()) {
+
+            if(sizeof($arr) > 0) {
+                return $arr;
+            }
+        }
+        return array();
+    }
+    
+    public function getNotificationTypeId($type) {
+    
+        $sql = "SELECT notification_type.id 
+                FROM notification_type                        
+                WHERE notification_type.type = '{$type}' ";   
+        
+        $this->_Pdo->sqlQuery($sql);            
+        if($id = $this->_Pdo->fetchValueWithKey("id")) {           
+            return $id;                                 
+        }                                                    
+        return -1;    
     }
  
 }

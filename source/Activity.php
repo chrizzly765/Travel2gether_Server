@@ -29,11 +29,11 @@ class Activity implements IFeatureItem {
     public function update($data) {
 		$sql = "UPDATE activity a
 				JOIN feature f ON f.id = a.id
-				SET a.date = COALESCE(:date, a.date),
-				a.destination = COALESCE(:destination, a.destination),
-				a.icon = COALESCE(:icon, a.icon),
-				f.title = COALESCE(:title, f.title),
-				f.description = COALESCE(:description, f.description),
+				SET a.date = :date,
+				a.destination = :destination, 
+				a.icon = :icon,
+				f.title = :title,
+				f.description = :description, 
 				f.last_update_by = :last_update_by, 
 				f.last_update = NOW()
 				WHERE a.id = :id";
@@ -44,7 +44,26 @@ class Activity implements IFeatureItem {
         return true;  
 	}
     
+    /*public function update($data) {
+        $sql = "UPDATE activity a
+                JOIN feature f ON f.id = a.id
+                SET a.date = COALESCE(:date, a.date),
+                a.destination = COALESCE(:destination, a.destination),
+                a.icon = COALESCE(:icon, a.icon),
+                f.title = COALESCE(:title, f.title),
+                f.description = COALESCE(:description, f.description),
+                f.last_update_by = :last_update_by, 
+                f.last_update = NOW()
+                WHERE a.id = :id";
+        
+        if(!$this->_Pdo->sqlPrepare($sql, array('date' => $data->date, 'destination' => $data->destination, 'icon' => $data->icon, 'title' => $data->title, 'description' => $data->description, 'last_update_by' => $data->last_update_by, 'id' => $data->id))) {            
+            throw new Exception(Base::$arrMessages['ERR_ACTIVITY_UPDATE'],10);    
+        }           
+        return true;  
+    }*/
+    
 	/* deletes an existing activity */
+    
     public function delete($id) {
 		$sql = "DELETE FROM activity 
 				WHERE id = :featureId;
@@ -59,7 +78,7 @@ class Activity implements IFeatureItem {
     
 	/* returns a list of all activities of a trip ordered by date: title, date, destination, icon */
     public function getList($tripId) {
-		$sql = "SELECT f.title, DATE_FORMAT(a.date,'%d.%m.%Y') AS date, a.destination, a.icon
+		$sql = "SELECT f.title, DATE_FORMAT(a.date,'%d.%m.%Y') AS date, a.destination, a.icon, a.id
 				FROM feature f
 				JOIN activity a on a.id = f.id
 				WHERE f.feature_type_id = 2

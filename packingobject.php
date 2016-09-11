@@ -3,7 +3,8 @@
 try {               
     $Feature = FRequest::create("Feature", array($Pdo));    
     $PackingObject = FRequest::create("PackingObject", array($Pdo));
-	$PackingItem = FRequest::create("PackingItem", array($Pdo));  
+	$PackingItem = FRequest::create("PackingItem", array($Pdo));
+	$Comment = FRequest::create("Comment", array($Pdo));  
         
     if($Request->getAction() == "add") {         
       
@@ -45,7 +46,9 @@ try {
             foreach($poList as $po){
 				$po->itemsPacked = $PackingObject->getItems($po->id);
 				$po->personsAssigned = $PackingObject->getPersonsAssigned($po->id, $Request->data->tripId);
+				$po->commentsNumber = $Comment->getCommentsNumber($po->id);
 			}
+			
 			$Response->setResponse(false,null);
             $Response->setResponseData($poList);             
         }                      
