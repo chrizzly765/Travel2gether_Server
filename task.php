@@ -23,42 +23,90 @@ try {
             // add task
             if($Task->add($featureId, $Request->data)) {
                 $Response->setResponse(false,Base::$arrMessages['OK_TASK_ADD']);
+
+                $deviceFound = false;
+                if($Request->data->person_assigned != 0) {
+                    $text = 'TASK_ADD_TO';
+                    $deviceId = $Notification->getUserTokenByPersonId($Request->data->person_assigned);
+                    $deviceFound = ($deviceId != -1) ? true : false;
+                }
+
+                $author = $Person->getNameById($Request->data->author);
+                $msg = Base::formatMessage($text, $author, $Request->data->title);
+
+                /*if($deviceFound) {
+                    $Notification->send(
+                        array($deviceId),
+                        array('message' => $msg, 'id'=>$Request->data->tripId, 'type'=>NOTIFICATION_TYPE_TASK, 'date'=>date("d.m.Y H:i:s"))
+                    );
+                }*/
             }
 
-            if($Request->data->person_assigned == 0) {
+            /*if($Request->data->person_assigned == 0) {
                 $text = 'TASK_ADD';
                 $deviceId = $Notification->getUserTokenByTripId($Request->data->tripId, $Request->data->author);
                 $deviceFound = (sizeof($deviceId) > 0) ? true : false;
             }
-            else {
-                $text = 'TASK_ADD_TO';
-                $deviceId = $Notification->getUserTokenByPersonId($Request->data->person_assigned);
-                $deviceFound = ($deviceId != -1) ? true : false;
-            }
-
-            $author = $Person->getNameById($Request->data->author);
-            $msg = Base::formatMessage($text, $author, $Request->data->title);
-
-
-            /*if($deviceFound) {
-                $Notification->send(
-                    array($deviceId),
-                    array('message' => $msg, 'id'=>$Request->data->tripId, 'type'=>NOTIFICATION_TYPE_TASK, 'date'=>date("d.m.Y H:i:s"))
-                );
-            }*/
+            */
         }
         else {            
             $Response->setResponse(true,Base::$arrMessages['ERR_TASK_ADD']);    
         }
     } 
 	else if($Request->getAction() == "update") {
-		if($Task->update($Request->data)) {
+
+	    if($Task->update($Request->data)) {
+
+	        // if author is not the person who's assigned to task, skip notification
+	        if($Request->data->person_assigned != $Request->data->author) {
+
+                // notify user which is assigned
+                $deviceId = $Notification->getUserTokenByPersonId($Request->data->person_assigned);
+                $deviceFound = ($deviceId != -1) ? true : false;
+
+                /*if($deviceFound) {
+
+                    $author = $Person->getNameById($Request->data->author);
+                    $msg = Base::formatMessage('TASK_UPDATE', $author, $Request->data->title);
+
+                    $Notification->send(
+                        array($deviceId),
+                        array('message' => $msg, 'id'=>$Request->data->tripId, 'type'=>NOTIFICATION_TYPE_TASK, 'date'=>date("d.m.Y H:i:s"))
+                    );
+                }*/
+            }
             $Response->setResponse(false,Base::$arrMessages['OK_TASK_UPDATE']);
-        } 	
+        }
+        else {
+            $Response->setResponse(true,Base::$arrMessages['ERR_TASK_UPDATE']);
+        }
 	}
 	else if($Request->getAction() == "delete") {
-		if($Task->delete($Request->data->id)) {
+
+	    if($Task->delete($Request->data->id)) {
+
+            // if author is not the person who's assigned to task, skip notification
+            if($Request->data->person_assigned != $Request->data->author) {
+
+                // notify user which is assigned
+                $deviceId = $Notification->getUserTokenByPersonId($Request->data->person_assigned);
+                $deviceFound = ($deviceId != -1) ? true : false;
+
+                /*if($deviceFound) {
+
+                    $author = $Person->getNameById($Request->data->author);
+                    $msg = Base::formatMessage('TASK_DELETE', $author, $Request->data->title);
+
+                    $Notification->send(
+                        array($deviceId),
+                        array('message' => $msg, 'id'=>$Request->data->tripId, 'type'=>NOTIFICATION_TYPE_TASK, 'date'=>date("d.m.Y H:i:s"))
+                    );
+                }*/
+            }
             $Response->setResponse(false,Base::$arrMessages['OK_TASK_DELETE']);
+        }
+        else {
+            $Response->setResponse(true,Base::$arrMessages['ERR_TASK_DELETE']);
         }
 	}
     else if($Request->getAction() == "list") {
@@ -77,7 +125,8 @@ try {
         }                      
     } 
 	else if($Request->getAction() == "detail") {
-		if($taskDetail = $Task->getDetail($Request->data->featureId)) {
+
+	    if($taskDetail = $Task->getDetail($Request->data->featureId)) {
             $Response->setResponse(false,null);
             $Response->setResponseData($taskDetail);             
         }

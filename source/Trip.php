@@ -54,18 +54,15 @@ class Trip {
         return false;
     }   
     
-    public function getList($id) {  // add STATUS
-        
-        /* convert date
-        DATE_FORMAT(start_date,'%d-%m-%Y') as dateConverted                        
-        */
+    public function getList($id, $state=2) {
         
         $sql = "SELECT trip.id AS tripId, trip.title, trip.destination, trip.description, trip.author AS authorId,
                 trip.admin AS adminId, DATE_FORMAT(trip.start_date,'%d.%m.%Y') AS startDate, 
                 DATE_FORMAT(trip.end_date,'%d.%m.%Y') AS endDate 
                 FROM trip
                 LEFT JOIN participant ON trip.id = participant.trip_id
-                WHERE participant.person_id = {$id} ";  
+                WHERE participant.person_id = {$id} 
+                AND participant.state = {$state}";
         
         $this->_Pdo->sqlQuery($sql);            
         if($obj = $this->_Pdo->fetchMultiObj()) {           
@@ -109,7 +106,7 @@ class Trip {
                 INNER JOIN participant ON trip.id = participant.trip_id
                 INNER JOIN person ON participant.person_id = person.id
                 WHERE trip.id = {$id} 
-                AND participant.state = {$state}";  
+                AND participant.state = {$state}";
                         
         $this->_Pdo->sqlQuery($sql);            
         if($obj = $this->_Pdo->fetchMultiObj()) {  

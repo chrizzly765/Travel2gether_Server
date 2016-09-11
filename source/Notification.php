@@ -37,8 +37,8 @@ class Notification {
     public function update($id) {
 
         $sql = "UPDATE notification				
-				SET notification. 
-				notification.last_update = NOW()
+				SET notification.opened = 'true', 
+				notification.added = NOW()
 				WHERE notification.id = :id";
 
         if($this->_Pdo->sqlPrepare($sql, array('id' => $id))) {
@@ -125,8 +125,8 @@ class Notification {
 
     public function getNotificationsByPersonId($personId, $numOfMessages) {
 
-        $sql = "SELECT notification.message, notification.id, notification.added, notification_type.type, 
-                        notification.trip_id, notification.feature_id, notification.opened 
+        $sql = "SELECT notification.message, notification.id, DATE_FORMAT(notification.added,'%d.%m.%Y %H:%i:%s') AS added, 
+                        notification_type.type, notification.trip_id, notification.feature_id, notification.opened 
                 FROM notification, notification_type                
                 WHERE notification.receiver = {$personId}   
                 AND notification_type.id = notification.type_id

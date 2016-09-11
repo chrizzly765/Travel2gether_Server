@@ -140,7 +140,7 @@ try {
     }      
 	else if($Request->getAction() == "getparticipants") {
 	
-		if($Trip->getParticipantsOfTrip($Request->data->tripId)) {
+		#if($Trip->getParticipantsOfTrip($Request->data->tripId)) {
 			
 			$objParticipantsList['list'] = array();
 			$objParticipant = $Trip->getParticipantsOfTrip($Request->data->tripId); 
@@ -151,7 +151,7 @@ try {
 			
             $Response->setResponse(false,null);
             $Response->setResponseData($objParticipantsList);             
-        }    
+        #}
 	}                      
 }
 catch(Exception $e) {                    

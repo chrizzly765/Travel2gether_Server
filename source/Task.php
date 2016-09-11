@@ -68,8 +68,7 @@ class Task implements IFeatureItem {
 				FROM feature f
 				JOIN task t on t.id = f.id
 				WHERE f.feature_type_id = 1
-				AND f.trip_id = {$tripId}
-				AND pa.trip_id = f.trip_id
+				AND f.trip_id = {$tripId}				
 				ORDER BY deadline ASC";
 				
 		$this->_Pdo->sqlQuery($sql);

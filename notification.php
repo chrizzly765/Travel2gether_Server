@@ -29,12 +29,12 @@ try {
             $Response->setResponseData($objNotifications);
         }
         else {
-            $Response->setResponse(true,null);
+            $Response->setResponse(false,"Keine Notifications vorhanden");
         }
     }
     else if($Request->getAction() == "update") {
 
-        $Notification->updateState($Request->data->personId, $Request->data->notificationId);
+        $Notification->update($Request->data->notificationId);
         $Response->setResponse(false,null);
     }
 }
