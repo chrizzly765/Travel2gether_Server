@@ -21,9 +21,12 @@ try {
                 unset($value->trip_id);
 
                 // decode message in case of special character
-                $value->message = utf8_decode($value->message);
                 array_push($objNotifications['list'],$value);
             }
+
+            /*echo "<pre>";
+            var_dump($objNotifications);
+            echo "</pre>";*/
 
             $Response->setResponse(false,null);
             $Response->setResponseData($objNotifications);

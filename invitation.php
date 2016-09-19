@@ -58,6 +58,14 @@ try {
     
         $stateId = $Person->getStateByName(STATE_INVITATION_JOINED);
         if($Person->updateState($Request->data->personId, $stateId, $Request->data->tripId)) {
+
+            // TODO: dont use colorId in plaintext
+            $lastColorId = $Person->getLastAssignedColor($Request->data->tripId);
+
+            // TODO: doesnt work!!!
+            $newColorId = ($lastColorId == 10) ? 2 : $lastColorId++;
+            $Person->updateColor($Request->data->personId, $newColorId, $Request->data->tripId);
+
             $Response->setResponse(false,null);    
         }            
     }

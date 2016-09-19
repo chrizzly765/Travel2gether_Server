@@ -67,7 +67,7 @@ class Expense implements IFeatureItem {
 	/* returns a list of all expenses of a trip: title, payer, amount, currency_id, color of payer */
     public function getList($tripId) {
 		
-		$sql = "SELECT f.id, f.title, e.payed_by, e.amount, e.currency_id
+		$sql = "SELECT f.id, f.title, e.payed_by as payedBy, e.amount, e.currency_id as currencyId
 				FROM feature f
 				JOIN expense e on e.id = f.id
 				AND f.trip_id = {$tripId}
@@ -87,15 +87,16 @@ class Expense implements IFeatureItem {
         return new stdClass();	
 	}    
     
-	/* returns all data of a single expense: title, description, payer, amount, currency_id, color of payer */
+	/* returns all data of a single expense: title, description, author, payer, amount, currency_id, color of payer */
     public function getDetail($featureId) {
 	
-		$sql = "SELECT f.title, f.description, e.payed_by, e.amount, e.currency_id
+		$sql = "SELECT f.id, f.added, f.last_update, f.last_update_by as lastUpdateBy, f.title, f.description, f.author, 
+                e.payed_by as payedBy, e.amount, e.currency_id as currencyId
 				FROM feature f
 				JOIN expense e on e.id = f.id
 				AND f.id = {$featureId}";
 				
-		/*$sql = "SELECT f.title, f.description, e.payed_by, e.amount, e.currency_id, p.color
+		/*$sql = "SELECT f.title, f.description, e.payed_by as payedBy, e.amount, e.currency_id as currencyId, p.color
 				FROM feature f
 				JOIN expense e on e.id = f.id
 				JOIN participant p on p.person_id = e.payer
@@ -103,7 +104,7 @@ class Expense implements IFeatureItem {
 				AND f.id = {$featureId}";*/
 		
 		$this->_Pdo->sqlQuery($sql);
-		if($obj = $this->_Pdo->fetchMultiObj()) {           
+		if($obj = $this->_Pdo->fetchObj()) {
             return $obj;
         }                                                    
         return new stdClass();
@@ -121,15 +122,15 @@ class Expense implements IFeatureItem {
 	}
 	
 	public function getPayers($featureId){
-		$sql = "SELECT p.payer
+		$sql = "SELECT p.payer, p.amount
 				FROM payer p
 				WHERE p.id = {$featureId}";
 				
 		$this->_Pdo->sqlQuery($sql);
-		if($obj = $this->_Pdo->fetchMultiObj()) {           
-            return $obj;
+		if($arr = $this->_Pdo->fetchMultiRow()) {
+            return $arr;
         }                                                    
-        return new stdClass();	
+        return array();
 	}
     
 }

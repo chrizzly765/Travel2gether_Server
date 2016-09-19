@@ -403,7 +403,7 @@ $expenseDetail = json_encode(array(
     'action'      => 'detail',
     'data' => 
     array(          
-        'featureId' => '45'
+        'featureId' => '74'
     )
 ));
 
@@ -419,7 +419,7 @@ $notificationList = json_encode(array(
     
   
 $url = "http://www.imagik.de/traveltogether/main.php";  
-$content = $addTask;
+$content = $notificationList;
 
 $curl = curl_init($url);
 curl_setopt($curl, CURLOPT_HEADER, false);

@@ -9,12 +9,10 @@ try {
     if($Request->getAction() == "add") {         
       
         if(call_user_func_array(array($Feature, $Request->getAction()), array($Request->data))) {
-        	
-            // TODO: get featureTypeId ... featureType == $Request->get_Type()?
-            //$featureId = $Feature->getTypeId($Request->get_Type());
-            
+
             $featureId = $Pdo->lastInsertId();
             Base::$transaction['feature'] = $featureId;
+			$Feature->setFeatureTypeId($featureId, $Request->get_Type());
 			
             if($PackingObject->add($featureId, $Request->data)) {        
 				foreach($Request->data->items as $item){

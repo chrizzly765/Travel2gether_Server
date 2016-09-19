@@ -64,6 +64,22 @@ class Feature {
         return $val;
     }
 
+
+    public function getTripIdByFeatureId($featureId) {
+
+        $sql = "SELECT feature.trip_id
+                FROM feature
+                WHERE feature.id = '{$featureId}' ";
+
+        $this->_Pdo->sqlQuery($sql);
+        $val = $this->_Pdo->fetchValueWithKey("trip_id");
+
+        if(is_null($val)) {
+            return -1;
+        }
+        return $val;
+    }
+
     public function setTypeId($id, $typeId) {
 
         $sql = "UPDATE feature 				
@@ -75,6 +91,17 @@ class Feature {
             #throw new Exception(Base::$arrMessages['ERR_TASK_UPDATE'],10);
         }
         return true;
+    }
+
+    public function setFeatureTypeId($featureId, $type) {
+
+        // set featureTypeId
+        $featureTypeId = $this->getTypeId($type);
+        if($featureTypeId == -1) {
+            // TODO: add param for message
+            throw new Exception(Base::$arrMessages['ERR_EXPENSE_ADD'],10);
+        }
+        $this->setTypeId($featureId, $featureTypeId);
     }
 
 

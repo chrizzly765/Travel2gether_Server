@@ -17,6 +17,9 @@ try {
             if(!$Person->addParticipant($Request->data->authorId, Base::$arrStates['joined'], $tripId)) {
                 throw new Exception(Base::$arrMessages['ERR_TRIP_ADD_PARTICIPANT'],10);                     
             }
+
+            // TODO: don't use plaintext
+            $Person->updateColor($Request->data->authorId, 2, $tripId);
                                                       
             // get deviceIds of participants
             /*$tripId = 49;

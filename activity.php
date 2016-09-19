@@ -11,6 +11,7 @@ try {
             
             $featureId = $Pdo->lastInsertId();
             Base::$transaction['feature'] = $featureId;
+            $Feature->setFeatureTypeId($featureId, $Request->get_Type());
 			
             if($Activity->add($featureId, $Request->data)) {
                 $Response->setResponse(false,Base::$arrMessages['OK_ACTIVITY_ADD']);    

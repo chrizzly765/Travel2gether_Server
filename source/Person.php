@@ -89,6 +89,33 @@ class Person {
         }
         return false;         
     }
+
+    public function updateColor($personId, $colorId, $tripId) {
+
+        $sql = "UPDATE participant 
+                SET participant.`color` = {$colorId}, participant.last_update = NOW()
+                WHERE participant.person_id = {$personId} AND participant.trip_id = {$tripId} ";
+
+        if($this->_Pdo->sqlExecute($sql)) {
+            return true;
+        }
+        return false;
+    }
+
+    public function getLastAssignedColor($tripId) {
+
+        $sql = "SELECT participant.color
+                FROM participant
+                WHERE participant.trip_id = {$tripId}
+                ORDER BY participant.color DESC
+                LIMIT 1";
+
+        $this->_Pdo->sqlQuery($sql);
+        if($color = $this->_Pdo->fetchValueWithKey("color")) {
+            return $color;
+        }
+        return -1;
+    }
     
     public function getFormerParticipantsByPersonId($id) {
     
@@ -155,12 +182,13 @@ class Person {
         return false;         
     }
     
-    public function updatePassword($id, $password) {
+    public function updatePassword($personId, $password, $salt) {
     
         $sql = "UPDATE person 
-                SET person.password = '{$password}', 
+                SET person.password = '{$password}',
+				person.salt = {$salt}, 
                 person.last_update = NOW()
-                WHERE person.id = {$id} ";           
+                WHERE person.id = {$personId}";           
           
         if($this->_Pdo->sqlExecute($sql)) {
             return true;    
@@ -171,16 +199,27 @@ class Person {
     public function updateSettings($data) {
     
         $sql = "UPDATE person 
-                SET person.password = '{$data->password}',
-                person.name = '{$data->name}',
+                SET person.name = '{$data->name}',
                 person.email = '{$data->email}',
                 person.last_update = NOW()
-                WHERE person.id = {$data->id} ";           
+                WHERE person.id = {$data->personId} ";           
           
         if($this->_Pdo->sqlExecute($sql)) {
             return true;    
         }
         return false;    
     }   
+	
+	public function getPassword($personId){
+		$sql = "SELECT password as currentPassword
+				FROM person p
+				WHERE p.id = {$personId}";
+				
+		$this->_Pdo->sqlQuery($sql);            
+        if($value = $this->_Pdo->fetchValueWithKey('currentPassword')) {           
+            return $value;
+        }                                                    
+        return -1;		 
+	}
 }
 ?>

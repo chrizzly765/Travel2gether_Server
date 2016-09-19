@@ -12,13 +12,7 @@ try {
 
             $featureId = $Pdo->lastInsertId();
             Base::$transaction['feature'] = $featureId;
-
-            // set featureTypeId
-            $featureTypeId = $Feature->getTypeId($Request->get_Type());
-            if($featureTypeId == -1) {
-                throw new Exception(Base::$arrMessages['ERR_TASK_ADD'],10);
-            }
-            $Feature->setTypeId($featureId, $featureTypeId);
+            $Feature->setFeatureTypeId($featureId, $Request->get_Type());
 
             // add task
             if($Task->add($featureId, $Request->data)) {
